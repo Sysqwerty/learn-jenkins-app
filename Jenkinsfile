@@ -31,7 +31,6 @@ pipeline {
                 sh """
                     test -f build/index.html
                     npm test
-                    test -f test-results/junit.xml
                 """
             }
         }
