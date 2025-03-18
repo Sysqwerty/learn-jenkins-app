@@ -15,14 +15,14 @@ pipeline {
                 }
             }
             steps {
-                sh """
+                sh '''
                     echo "Small change"
                     ls -la
                     node --version
                     npm --version
                     npm ci
                     npm run build
-                """
+                '''
             }
         }
 
@@ -36,10 +36,10 @@ pipeline {
                         }
                     }
                     steps {
-                        sh """
+                        sh '''
                             test -f build/index.html
                             npm test
-                        """
+                        '''
                     }
 
                     post {
@@ -57,12 +57,12 @@ pipeline {
                         }
                     }
                     steps {
-                        sh """
+                        sh '''
                             npm install serve
                             node_modules/.bin/serve -s build &
                             sleep 10
                             npx playwright test --reporter=html
-                        """
+                        '''
                     }
 
                     post {
@@ -108,9 +108,9 @@ pipeline {
             }
 
             steps {
-                sh """
+                sh '''
                     npx playwright test --reporter=html
-                """
+                '''
             }
 
             post {
@@ -131,24 +131,6 @@ pipeline {
         stage('Deploy prod') {
             agent {
                 docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
-            steps {
-                sh '''
-                    npm install netlify-cli
-                    node_modules/.bin/netlify --version
-                    echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
-                    node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --prod
-                '''
-            }
-        }
-
-        stage('Prod E2E') {
-            agent {
-                docker {
                     image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
                     reuseNode true
                 }
@@ -159,9 +141,15 @@ pipeline {
             }
 
             steps {
-                sh """
+                sh '''
+                    node --version
+                    npm install netlify-cli
+                    node_modules/.bin/netlify --version
+                    echo "Deploying to production. Site ID: $NETLIFY_SITE_ID"
+                    node_modules/.bin/netlify status
+                    node_modules/.bin/netlify deploy --dir=build --prod
                     npx playwright test --reporter=html
-                """
+                '''
             }
 
             post {
